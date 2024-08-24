@@ -32,7 +32,7 @@ class TelegramBot:
 
         self._remove_job_if_exists(str(chat_id), context)
         context.job_queue.run_repeating(self._level_alarm, 
-                                        interval=os.environ.get('LEVEL_POLLING_INTERVAL', 3600), 
+                                        interval=int(os.environ.get('LEVEL_POLLING_INTERVAL', 3600)), 
                                         chat_id = chat_id, 
                                         name=str(chat_id))
         
