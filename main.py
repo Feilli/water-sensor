@@ -1,4 +1,5 @@
 import logging
+import asyncio
 import os
 
 from dotenv import load_dotenv
@@ -14,7 +15,12 @@ logging.basicConfig(
 # loading environment variables
 load_dotenv()
 
-if __name__ == '__main__':
+async def main():
     bot = TelegramBot(token=os.environ.get('TELEGRAM_TOKEN'))
-    bot.init()
+    
+    await bot.init()
+    
     bot.start()
+
+if __name__ == '__main__':
+    asyncio.run(main())

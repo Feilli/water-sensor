@@ -11,9 +11,9 @@ class TelegramBot:
     def __init__(self, token):
         self.application = ApplicationBuilder().token(token).build()
 
-    def init(self):
+    async def init(self):
         self.init_handlers()
-        start_interval(self.init_water_level_polling())
+        self.init_water_level_polling()
 
     def start(self):
         self.application.run_polling()

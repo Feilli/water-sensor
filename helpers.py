@@ -9,6 +9,3 @@ def set_interval(interval):
                 await asyncio.sleep(interval)
         return wrapper
     return scheduler
-
-def start_interval(callback):
-    asyncio.run(callback)
