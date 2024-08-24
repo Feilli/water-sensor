@@ -3,5 +3,4 @@ __pycache__
 .venv
 .env
 
-level.txt
 subscribers.txt

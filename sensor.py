@@ -14,7 +14,7 @@ class WaterSensorLog:
         if len(records) >= self.limit:
             records.pop(0)
         
-        record = '{datetime},{distance}'.format(datetime=int(time.time()), distance=distance)
+        record = '{datetime},{distance}\n'.format(datetime=int(time.time()), distance=distance)
         records.append(record)
 
         with open(self.file_name, 'w') as file:
