@@ -18,7 +18,7 @@ class WaterSensorLog:
         records.append(record)
 
         with open(self.file_name, 'w') as file:
-            file.write('\n'.join(records))
+            file.write(''.join(records))
 
 
 try:
