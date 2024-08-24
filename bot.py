@@ -37,13 +37,13 @@ class TelegramBot:
                                         name=str(chat_id))
         
         msg = 'You have successfully subscribed for notifications! To unsubscribe type /unsubscribe'
-        await update.effective_message.reply_text(chat_id=chat_id, text=msg)
+        await update.effective_message.reply_text(text=msg)
 
     async def _unsubscribe_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id = update.effective_chat.id
         self._remove_job_if_exists(str(chat_id), context)
         msg = 'You\'ve ubsubscribed from notifications. To subscribe type /subscribe.'
-        await update.effective_message.reply_text(chat_id=chat_id, text=msg)
+        await update.effective_message.reply_text(text=msg)
 
     def _get_water_level(self):
         file = open(os.environ.get('LEVEL_PATH'), 'r')
