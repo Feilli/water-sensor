@@ -8,8 +8,8 @@ class WaterSensorLog:
         self.limit = limit
 
     def push(self, distance):
-        file = open(self.file_name, 'w')
-        records = file.readlines()
+        with open(self.file_name, 'r') as file:
+            records = file.readlines()
 
         if len(records) >= self.limit:
             records.pop(0)
@@ -17,8 +17,8 @@ class WaterSensorLog:
         record = '{datetime},{distance}'.format(datetime=int(time.time()), distance=distance)
         records.append(record)
 
-        file.write('\n'.join(records))
-        file.close()
+        with open(self.file_name, 'w') as file:
+            file.write('\n'.join(records))
 
 
 try:
