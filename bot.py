@@ -3,75 +3,63 @@ import os
 from telegram import Update
 from telegram.ext import filters, ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler, ChatMemberHandler
 
-from helpers import set_interval, start_interval
-
 
 class TelegramBot:
 
     def __init__(self, token):
         self.application = ApplicationBuilder().token(token).build()
 
-    async def init(self):
-        self.init_handlers()
-        self.init_water_level_polling()
+    def init(self):
+        self._init_handlers()
 
     def start(self):
         self.application.run_polling()
 
     async def _chat_member_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        msg = 'Welcome to the Framaizon ChatBot!\n\nThis bot was developed to notify you about the high level of water in a bucket on the balcony.\n\nTo subscribe for updates type /subscribe\n\n.For full list of commands type /help.'
+        msg = 'Welcome to the *Water Sensor Bot*!\n\nThis bot was developed to notify you about the high level of water in a bucket on the balcony.\n\nTo subscribe for updates type /subscribe\n\n.For full list of commands type /help.'
         await context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
-    def _add_subscriber(self, subscriber):
-        file = open(os.environ.get('SUBSCRIBERS_PATH'), 'w+')
-        file.write(str(subscriber))
-        file.close()
+    def _remove_job_if_exists(self, name: str, context: ContextTypes.DEFAULT_TYPE):
+        current_jobs = context.job_queue.get_jobs_by_name(name)
+        if not current_jobs:
+            return False
+        for job in current_jobs:
+            job.schedule_removal()
+        return True
 
     async def _subscribe_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        self._add_subscriber(subscriber=update.effective_chat.id)
-        msg = 'You\'ve subscribed to notifications. To unsubscribe type /unsubscribe.'
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
+        chat_id = update.effective_chat.id
 
-    def _remove_subscriber(self, subscriber):
-        # read subscribers from file
-        with open(os.environ.get('SUBSCRIBERS_PATH', 'r')) as file:
-            subscribers = file.readlines()
-
-        # rewrite the list of subscribers
-        with open(os.environ.get('SUBSCRIBERS_PATH', 'w')) as file:
-            for sub in subscribers:
-                if sub.strip('\n') != subscriber:
-                    file.write(sub)
+        self._remove_job_if_exists(str(chat_id), context)
+        context.job_queue.run_repeating(self._level_alarm, 
+                                        interval=os.environ.get('LEVEL_POLLING_INTERVAL', 3600), 
+                                        chat_id = chat_id, 
+                                        name=str(chat_id))
+        
+        msg = 'You have successfully subscribed for notifications! To unsubscribe type /unsubscribe'
+        await update.effective_message.reply_text(chat_id=chat_id, text=msg)
 
     async def _unsubscribe_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        self._remove_subscriber(update.effective_chat.id)
+        chat_id = update.effective_chat.id
+        self._remove_job_if_exists(str(chat_id), context)
         msg = 'You\'ve ubsubscribed from notifications. To subscribe type /subscribe.'
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
+        await update.effective_message.reply_text(chat_id=chat_id, text=msg)
 
     def _get_water_level(self):
         file = open(os.environ.get('LEVEL_PATH'), 'r')
         level = file.read()
         file.close()
         return level
-    
-    def _get_subscribers(self): 
-        file = open(os.environ.get('SUBSCRIBERS_PATH'), 'r')
-        subscribers = file.readlines()
-        file.close()
-        return subscribers
-    
-    @set_interval(os.environ.get('LEVEL_POLLING_INTERVAL', 3600))
-    async def init_water_level_polling(self):
+
+    async def _level_alarm(self, context: ContextTypes.DEFAULT_TYPE):
+        job = context.job
         level = self._get_water_level()
 
         if float(level) > float(os.environ.get('LEVEL_LIMIT', 0)):
             return
 
-        chats = self._get_subscribers()
-        msg = 'Current water level: {level} cm.'.format(level=level.strip())
-
-        for chat in chats:
-            await self.application.bot.send_message(chat_id=chat, text=msg)
+        msg = '*ALARM!* Current water level: {level} cm.'.format(level=level.strip())
+        await context.bot.send_message(job.chat_id, text=msg)
 
     async def _level_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         level = self._get_water_level()
@@ -86,7 +74,7 @@ class TelegramBot:
         msg = 'Unknown command.\n\nType /help to list all commands.'
         await context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
 
-    def init_handlers(self):
+    def _init_handlers(self):
         # new chat member
         self.application.add_handler(ChatMemberHandler(self._chat_member_handler, ChatMemberHandler.CHAT_MEMBER))
 
