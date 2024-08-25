@@ -6,12 +6,12 @@ from telegram.ext import filters, ApplicationBuilder, ContextTypes, CommandHandl
 
 class SubscriberManager:
 
-    def __init__(self, file_name='subscriber.txt'):
+    def __init__(self, file_name='subscribers.txt'):
         self.file_name = file_name
         self.subscribers = []
 
     def init(self):
-        with open(self.file_name, 'w+') as file:
+        with open(self.file_name, 'r') as file:
             subscribers = file.readlines()
 
         for subscriber in subscribers:

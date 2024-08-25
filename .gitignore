@@ -4,3 +4,4 @@ __pycache__
 .env
 
 level.txt
+subscribers.txt
