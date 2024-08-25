@@ -11,7 +11,7 @@ class SubscriberManager:
         self.subscribers = []
 
     def init(self):
-        with open(self.file_name, 'r+') as file:
+        with open(self.file_name, 'w+') as file:
             subscribers = file.readlines()
 
         for subscriber in subscribers:
