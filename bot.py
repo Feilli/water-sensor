@@ -55,6 +55,16 @@ class TelegramBot:
 
     def init(self):
         self._init_handlers()
+        self._init_jobs()
+
+    def _init_jobs(self):
+        job_queue = self.application.job_queue
+
+        for subscriber in self.subscriber_manager.subscribers:
+            job_queue.run_repeating(self._level_alarm,
+                                    interval=int(os.environ.get('LEVEL_POLLING_INTERVAL', 3600)),
+                                    chat_id=int(subscriber),
+                                    name=subscriber)
 
     def start(self):
         self.application.run_polling()
