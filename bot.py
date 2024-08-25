@@ -86,8 +86,8 @@ class TelegramBot:
     async def _subscribe_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id = update.effective_chat.id
 
-        self.remove_alarm_job(str(chat_id), context.job_queue)
-        self.create_alarm_job(str(chat_id), context.job_queue)
+        self.remove_alarm_job(str(chat_id), context)
+        self.create_alarm_job(str(chat_id), context)
         
         msg = 'You have successfully subscribed for notifications! To unsubscribe type /unsubscribe'
         await update.effective_message.reply_text(text=msg)
