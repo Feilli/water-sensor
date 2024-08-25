@@ -18,8 +18,6 @@ if __name__ == '__main__':
     subscriber_manager = SubscriberManager(file_name=os.environ.get('SUBSCRIBERS_PATH'))
     subscriber_manager.init()
 
-    level_manager = Level
-
     bot = TelegramBot(token=os.environ.get('TELEGRAM_TOKEN'), subscriber_manager=subscriber_manager)
     bot.init()
     bot.start()
