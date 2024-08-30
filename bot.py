@@ -71,7 +71,7 @@ class TelegramBot:
         self.application.run_polling()
 
     async def _start_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        msg = 'Welcome to the *Water Sensor Bot*\!\n\nThis bot was developed to notify you about the high level of water in a bucket on the balcony\.\n\nTo subscribe for updates type /subscribe\n\n\.For full list of commands type /help\.'
+        msg = 'Welcome to the *Water Sensor Bot*\!\n\nThis bot was developed to notify you about the high level of water in a bucket on the balcony\.\n\nTo subscribe for updates type /subscribe\.\n\nFor full list of commands type /help\.'
         await context.bot.send_message(chat_id=update.effective_chat.id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
 
     def remove_alarm_job(self, name: str, context: ContextTypes.DEFAULT_TYPE):
