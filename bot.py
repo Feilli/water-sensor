@@ -2,6 +2,7 @@ import os
 
 from telegram import Update
 from telegram.ext import filters, ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler
+from telegram.constants import ParseMode
 
 
 class SubscriberManager:
@@ -70,8 +71,8 @@ class TelegramBot:
         self.application.run_polling()
 
     async def _start_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
-        msg = 'Welcome to the <b>Water Sensor Bot</b>!\n\nThis bot was developed to notify you about the high level of water in a bucket on the balcony.\n\nTo subscribe for updates type /subscribe\n\n.For full list of commands type /help.'
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=msg)
+        msg = 'Welcome to the *Water Sensor Bot*!\n\nThis bot was developed to notify you about the high level of water in a bucket on the balcony.\n\nTo subscribe for updates type /subscribe\n\n.For full list of commands type /help.'
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
 
     def remove_alarm_job(self, name: str, context: ContextTypes.DEFAULT_TYPE):
         current_jobs = context.job_queue.get_jobs_by_name(name)
@@ -99,7 +100,7 @@ class TelegramBot:
         self.remove_alarm_job(str(chat_id), context)
         self.create_alarm_job(str(chat_id), context)
         
-        msg = 'You have successfully subscribed for notifications! To unsubscribe type /unsubscribe'
+        msg = 'You have successfully subscribed for notifications! To unsubscribe type /unsubscribe.'
         await update.effective_message.reply_text(text=msg)
 
     async def _unsubscribe_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -121,8 +122,8 @@ class TelegramBot:
         if float(level) > float(os.environ.get('LEVEL_LIMIT', 0)):
             return
 
-        msg = '<b>ALARM!</b> Current water level: {level} cm.'.format(level=level.strip())
-        await context.bot.send_message(job.chat_id, text=msg)
+        msg = '*ALARM!* Current water level: {level} cm.'.format(level=level.strip())
+        await context.bot.send_message(job.chat_id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
 
     async def _level_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         level = self._get_water_level()
