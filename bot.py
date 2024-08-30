@@ -3,6 +3,7 @@ import os
 from telegram import Update
 from telegram.ext import filters, ApplicationBuilder, ContextTypes, CommandHandler, MessageHandler
 from telegram.constants import ParseMode
+from telegram.helpers import escape_markdown
 
 
 class SubscriberManager:
@@ -67,12 +68,17 @@ class TelegramBot:
                                     chat_id=int(subscriber),
                                     name=subscriber)
 
+    def _escape(self, text):
+        return escape_markdown(text, version=2)
+
     def start(self):
         self.application.run_polling()
 
     async def _start_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         msg = 'Welcome to the *Water Sensor Bot*!\n\nThis bot was developed to notify you about the high level of water in a bucket on the balcony.\n\nTo subscribe for updates type /subscribe\n\n.For full list of commands type /help.'
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
+        await context.bot.send_message(chat_id=update.effective_chat.id, 
+                                       text=self._escape(msg), 
+                                       parse_mode=ParseMode.MARKDOWN_V2)
 
     def remove_alarm_job(self, name: str, context: ContextTypes.DEFAULT_TYPE):
         current_jobs = context.job_queue.get_jobs_by_name(name)
@@ -123,7 +129,9 @@ class TelegramBot:
             return
 
         msg = '*ALARM!* Current water level: {level} cm.'.format(level=level.strip())
-        await context.bot.send_message(job.chat_id, text=msg, parse_mode=ParseMode.MARKDOWN_V2)
+        await context.bot.send_message(chat_id=job.chat_id, 
+                                       text=self._escape(msg), 
+                                       parse_mode=ParseMode.MARKDOWN_V2)
 
     async def _level_handler(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         level = self._get_water_level()
