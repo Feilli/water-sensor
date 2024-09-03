@@ -122,6 +122,7 @@ class TelegramBot:
         if float(level) > float(os.environ.get('LEVEL_LIMIT', 0)):
             return
 
+        level = level.replace('.', '\\.')
         msg = '*ALARM\!* Current water level: {level} cm\.'.format(level=level.strip())
         await context.bot.send_message(chat_id=job.chat_id, 
                                        text=msg, 
